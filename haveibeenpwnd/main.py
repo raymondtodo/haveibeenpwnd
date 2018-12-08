@@ -2,6 +2,7 @@
 from hashlib import sha1
 import requests
 
+proxy = {"http": "proxy.server.com", "https": "proxy.server.com"}
 HEADERS = {'user-agent': 'pypi.org/project/haveibeenpwnd/ v0.1', 'api-version': 2}
 range_url = 'https://api.pwnedpasswords.com/range/{}'
 email_url = 'https://haveibeenpwned.com/api/v2/breachedaccount/{}'
@@ -21,7 +22,7 @@ def check_password(password):
     suffix = hashed_password[5:]
 
     # only send a prefix of 5 chars to haveibeenpwnd.com
-    response = requests.get(range_url.format(prefix), HEADERS).text
+    response = requests.get(range_url.format(prefix), HEADERS, proxies=proxy).text
 
     for line in iter(response.splitlines()):
         hex, _, count = line.partition(':')
@@ -32,7 +33,7 @@ def check_password(password):
 
 
 def check_email(email):
-    response = requests.get(email_url.format(email), HEADERS)
+    response = requests.get(email_url.format(email), HEADERS, proxies=proxy)
     http_status = response.status_code
     if http_status == 200:
         return {
